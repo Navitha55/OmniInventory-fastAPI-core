@@ -7,14 +7,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL environment variable is not set")
 
-connect_args = {}
-
-if os.getenv("DB_SSLMODE"):
-    connect_args["sslmode"] = os.getenv("DB_SSLMODE")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace(
+        "postgres://", "postgresql://", 1
+    )
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args=connect_args,
     pool_pre_ping=True
 )
 
