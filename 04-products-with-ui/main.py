@@ -4,26 +4,35 @@ from sqlalchemy.orm import Session
 import database_models
 from database import SessionLocal, engine
 from models import Product
+import os
 
 database_models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="OmniInventory API",
+    description="Inventory management API",
+    version="1.0.0"
+)
 
 # CORS for React dev server
+frontend_urls = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:3000"
+)
+
+allowed_origins = [
+    url.strip()
+    for url in frontend_urls.split(",")
+    if url.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 # list of products with 4 products like phones, laptops, pens, tables

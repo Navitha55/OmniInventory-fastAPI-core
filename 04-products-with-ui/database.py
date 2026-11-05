@@ -1,7 +1,25 @@
-
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-db_url = "postgresql://postgres:12345678@localhost:5432/telusko"
-engine = create_engine(db_url)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set")
+
+connect_args = {}
+
+if os.getenv("DB_SSLMODE"):
+    connect_args["sslmode"] = os.getenv("DB_SSLMODE")
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True
+)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
